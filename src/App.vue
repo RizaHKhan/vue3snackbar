@@ -4,7 +4,17 @@
     <router-link to="/about">About</router-link>
   </div>
   <router-view />
+  <Snackbar />
 </template>
+
+<script>
+import Snackbar from "@/components/Snackbar";
+export default {
+  components: {
+    Snackbar
+  }
+};
+</script>
 
 <style lang="scss">
 #app {
@@ -13,6 +23,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  overflow: hidden;
 }
 
 #nav {
