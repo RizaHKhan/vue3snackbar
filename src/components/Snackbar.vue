@@ -12,6 +12,7 @@
 <script>
 import { useStore } from "vuex";
 import { computed, ref } from "vue";
+
 export default {
   setup() {
     const timerInterval = 3000;
