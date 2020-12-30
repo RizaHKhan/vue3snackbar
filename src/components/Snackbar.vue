@@ -3,7 +3,7 @@
     <div class="snackbar" v-if="currentSnack">
       <div class="snackbar__container">
         <p>{{ currentSnack }}</p>
-        <button @click="closeSnackbar">Close Me</button>
+        <button @click="closeCurrentSnack">Close Me</button>
       </div>
     </div>
   </transition>
@@ -14,43 +14,33 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 export default {
   setup() {
-    const timerInterval = 1500;
+    const timerInterval = 3000;
     const store = useStore();
-    let timeoutToken = null;
+    let timeoutToken = ref(null);
     let snacks = computed(() => store.getters["GET_SNACKBAR_MESSAGES"]);
     let currentSnack = ref(null);
 
-    // The event that triggers the Snackbar to initially appear.
-    // Much like an EventBus emit
     store.subscribe(mutation => {
-      // listen for this specific mutation call
       if (mutation.type === "ADD_SNACKBAR_MESSAGE") {
-        // if there is already a timeoutToken do not proceed
-        if (timeoutToken) return;
+        if (currentSnack.value) return;
 
-        // if no token, set the value to this settimeout function where we do:
-        // 1. Set the current value to the [0] index of the snacks array.
-        // 2. Remove that item from the snacks array in the store
         currentSnack.value = snacks.value[0];
-        timeoutToken = setTimeout(() => {
+        timeoutToken.value = setTimeout(() => {
           closeCurrentSnack();
         }, timerInterval);
       }
     });
 
     function closeCurrentSnack() {
+      clearTimeout(timeoutToken.value);
       store.commit("DELETE_SNACKBAR_MESSAGE");
       currentSnack.value = null;
-      timeoutToken = null;
     }
 
     function checkForMoreSnacks() {
-      if (!snacks.value.length) {
-        timeoutToken = null;
-        currentSnack.value = null;
-      } else {
+      if (snacks.value.length) {
         currentSnack.value = snacks.value[0];
-        timeoutToken = setTimeout(() => {
+        timeoutToken.value = setTimeout(() => {
           closeCurrentSnack();
         }, timerInterval);
       }
@@ -58,7 +48,8 @@ export default {
 
     return {
       currentSnack,
-      checkForMoreSnacks
+      checkForMoreSnacks,
+      closeCurrentSnack
     };
   }
 };
